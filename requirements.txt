@@ -1,0 +1,6 @@
+# python==3.12.2
+python-dotenv
+openai
+
+# for example
+arxiv

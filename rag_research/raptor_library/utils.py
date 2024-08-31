@@ -1,12 +1,11 @@
 import re
 import ssl
 import tempfile
-
-import arxiv
-import fitz
 import urllib.error
 import urllib.request
 
+import arxiv
+import fitz
 from pydantic import BaseModel, Field
 
 
@@ -54,12 +53,3 @@ def fetch_single_paper(url: str) -> ArXivPaper:
 def fetch_multiple_papers(urls: list[str]) -> list[ArXivPaper]:
     """Fetches and downloads multiple ArXiv papers from the given URLs and returns a list of ArXivPaper objects."""
     return [fetch_single_paper(url) for url in urls]
-
-
-def prepare_documents(papers: list[ArXivPaper]) -> list[Node]:
-    """Prepares a list of documents from ArXivPaper."""
-    splitter = SentenceSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
-    sentences = itertools.chain.from_iterable(
-        splitter.split_text(paper.text) for paper in papers
-    )
-    return [Node(text=sentence) for sentence in sentences]

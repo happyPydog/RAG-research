@@ -6,4 +6,4 @@ sentence-transformers
 transformers
 tiktoken
 scikit-learn
-faiss-cpu
+umap-learn

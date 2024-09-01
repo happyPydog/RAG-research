@@ -95,25 +95,18 @@ def make_leaf_nodes(texts: list[str], embed_model: EmbeddingModel) -> list[Node]
 
 
 class Tree(BaseModel):
-    layer_nodes_map: dict[int, list[Node]] = Field(
-        default_factory=collections.defaultdict(list)
+    nodes_map: dict[int, list[Node]] = Field(
+        default_factory=collections.defaultdict(list),
+        description="A mapping of layer number to the nodes.",
     )
 
     @computed_field
     @property
     def leaf_nodes(self) -> list[Node]:
-        return self.layer_nodes_map[0]
+        return self.nodes_map[0] if self.nodes_map[0] else []
 
-    @field_validator("leaf_nodes")
-    @classmethod
-    def check_is_leaf(cls, v: list[Node]) -> list[Node]:
-        for node in v:
-            if not node.is_leaf():
-                raise ValueError("All nodes must be leaf nodes.")
-        return v
-
-    def add_node(self, parent: Node, child: Node) -> None:
-        parent.add_child(child)
+    def find_node_by_text(self, text: str) -> list[Node]: ...
+    def find_node_by_layer(self, layer: int) -> list[Node]: ...
 
     def traverse(self, nodes: list[Node] | None = None) -> list[str]:
         if nodes is None:
@@ -415,10 +408,10 @@ def make_tree(
 
     # Construct the tree layer by layer
     curr_layer_nodes: list[Node] = []
-    for layer in range(max_layers):
+    for layer in tqdm(range(max_layers), desc="Building tree", total=max_layers):
         if layer == 0:
             leaf_nodes = make_leaf_nodes(texts, embed_model)
-            tree.layer_nodes_map[layer] = leaf_nodes
+            tree.nodes_map[layer] = leaf_nodes
             continue
 
         # get last layer nodes
@@ -447,7 +440,7 @@ def make_tree(
             curr_layer_nodes.append(nodes)
 
         # update the tree
-        tree.layer_nodes_map[layer] = curr_layer_nodes
+        tree.nodes_map[layer] = curr_layer_nodes
 
     return tree
 

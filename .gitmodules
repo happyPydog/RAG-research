@@ -1,0 +1,3 @@
+[submodule "rag_research/RAPTOR"]
+	path = rag_research/RAPTOR
+	url = https://github.com/happyPydog/RAPTOR.git
